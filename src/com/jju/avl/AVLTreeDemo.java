@@ -1,33 +1,43 @@
-package com.jju.binarysorttree;
+package com.jju.avl;
 
-//二叉排序树(BST)
-public class binarySortTreeDemo {
+//平衡二叉树（AVL）
+//可以保证查询效率较高，是二叉排序树的升级
+//需要具备以下特点：
+//它是一棵空树或它的左右两个子树的高度差的绝对值不超过1，并且左右两个子树都是一颗平衡二叉树。
+//平衡二叉树的常用实现方法有红黑树、AVL、替罪羊树、Treap、伸展树等
+public class AVLTreeDemo {
 
     public static void main(String[] args) {
-        int [] arr = {7, 3, 10, 12, 5, 1, 9, 2};
-        BinarySortTree binarySortTree = new BinarySortTree();
-        //循环添加结点到二叉排序树中
+//        int [] arr = {4, 3, 6, 5, 7, 8};
+//        int [] arr = {10, 12, 8, 9, 7, 6};
+        int [] arr = {10, 11, 7, 6, 8, 9};
+        //创建一个AVLTree对象
+        AVLTree avlTree = new AVLTree();
+        //添加结点
         for (int i = 0; i < arr.length; i++) {
-            binarySortTree.add(new Node(arr[i]));
+            avlTree.add(new Node(arr[i]));
         }
 
-        //中序遍历二叉排序树
-        System.out.println("中序遍历二叉排序树：");
-        binarySortTree.infixOrder();            //1，3，5，7，9，10，12
+        //中序遍历
+        System.out.println("中序遍历：");
+        avlTree.infixOrder();
+
+        System.out.println("在没有旋转(平衡)处理前");   //在添加结点的时候处理了
+        System.out.println("树的高度：" + avlTree.getRoot().height());               //4 ->  3        4  ->  3
+        System.out.println("树的左子树高度：" + avlTree.getRoot().leftHeight());     //1  ->  2       3  ->  2
+        System.out.println("树的右子树高度：" + avlTree.getRoot().rightHeight());    //3  ->  2       1  ->  2
+        System.out.println("当前根节点=" + avlTree.getRoot());
+        System.out.println("根节点的左子结点 + " + avlTree.getRoot().left);
+        System.out.println("根节点的右子结点 + " + avlTree.getRoot().right);
 
 
-        //删除叶子结点
-        binarySortTree.delNode(1);
-
-        System.out.println("root=" + binarySortTree.getRoot());
-        System.out.println("删除结点后，中序遍历二叉排序树：");
-        binarySortTree.infixOrder();            //1，3，5，7，9，10，12
     }
 
 }
 
-//创建二叉排序树
-class BinarySortTree{
+
+//创建AVLTree
+class AVLTree{
     private Node root;
 
     public Node getRoot() {
@@ -169,6 +179,7 @@ class BinarySortTree{
     }
 }
 
+
 //创建Node结点
 class Node{
     int value;
@@ -185,6 +196,59 @@ class Node{
                 "value=" + value +
                 '}';
     }
+
+
+
+    //右旋转
+    private void rightRotate(){
+        Node newNode = new Node(value);
+        newNode.right = right;
+        newNode.left = left.right;
+        value = left.value;
+        left = left.left;
+        right = newNode;
+    }
+
+    //左旋转
+    private void leftRotate(){
+        //创建新的结点，以当前根结点的值
+        Node newNode = new Node(value);
+
+        //把新结点的左子树设置为当前结点的左子树
+        newNode.left = left;
+        //把新结点的右子树设置为当前结点的右子树的左子树
+        newNode.right = right.left;
+        //把当前结点的值替换为右子节点的值
+        value = right.value;
+        //把当前结点的右子树设置为当前结点的右子树的右子树
+        right = right.right;
+        //把当前结点的左子树（左子结点）设置为新结点
+        left = newNode;
+    }
+
+
+    //返回左子树的高度
+    public int leftHeight(){
+        if(left == null){
+            return 0;
+        }
+        return left.height();
+    }
+
+    //返回右子树的高度
+    public int rightHeight(){
+        if(right == null){
+            return 0;
+        }
+        return right.height();
+    }
+
+    //返回以当前结点为根节点的树的高度
+    public int height(){
+        return Math.max(left == null ? 0 : left.height(), right == null ? 0 : right.height()) + 1;
+    }
+
+
 
 
     /**
@@ -261,6 +325,38 @@ class Node{
                 this.right.add(node);
             }
         }
+
+
+        //当添加完一个结点后，如果 （右子树的高度-左子树的高度） > 1，左旋转
+        if(rightHeight() - leftHeight() > 1){
+            //如果右子树的左子树的高度大于右子树的右子树的高度
+            if(right != null && right.leftHeight() > right.rightHeight()){
+                //相对当前结点的右结点（右子树）-》右旋转
+                right.rightRotate();
+                //再对当前结点进行左旋转
+                leftRotate();
+            }
+            else{
+                //直接进行左旋转即可
+                leftRotate();
+            }
+            return;
+        }
+
+        //当添加完一个结点后，如果（左子树的高度-右子树的高度） > 1，右旋转
+        if(leftHeight() - rightHeight() > 1){
+            //如果左子树的右子树的高度大于左子树的左子树的高度
+            if(left != null && left.rightHeight() > left.leftHeight()){
+                //先对当前结点的左结点（左子树）-》左旋转
+                left.leftRotate();
+                //再对当前结点进行右旋转
+                rightRotate();
+            }
+            else{
+                //直接进行右旋转即可
+                rightRotate();
+            }
+        }
     }
 
     //中序遍历
@@ -275,4 +371,3 @@ class Node{
     }
 
 }
-
