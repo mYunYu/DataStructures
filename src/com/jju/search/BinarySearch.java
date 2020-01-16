@@ -3,7 +3,7 @@ package com.jju.search;
 import java.util.ArrayList;
 import java.util.List;
 
-//二分查找
+//二分查找（递归）
 //注意：使用二分查找的前提是 该数组是有序的
 public class BinarySearch {
 
