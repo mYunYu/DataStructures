@@ -3,6 +3,8 @@ package com.jju.algorithm.dijkstra;
 import java.util.Arrays;
 
 //Dijkstra(迪杰斯特拉)算法---解决最短路径问题
+//是计算途中某一个顶点到其他顶点的最短路径
+//该算法是通过选定的被访问顶点，求出从出发顶点到其他顶点的最短路径
 public class DijkstraAlgorithm {
 
     public static void main(String[] args) {
